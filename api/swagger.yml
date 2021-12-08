@@ -1,0 +1,271 @@
+openapi: 3.0.3
+info:
+  title: UserAPI
+  version: '1.0'
+  description: The User API
+  contact:
+    name: John
+#    url: example.com/contact
+    email: contact@example.com
+  termsOfService: example.com/termsofservice
+  license:
+    name: MIT
+  x-audience: company-internal
+  x-edm-id: a.b.c
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  /v1/users:
+    post:
+      summary: Create New User
+      operationId: post-user
+      responses:
+        '201':
+          description: User Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                New User Bob Fellow:
+                  value:
+                    id: 12
+                    firstName: Bob
+                    lastName: Fellow
+                    email: bob.fellow@gmail.com
+                    dateOfBirth: '1996-08-24'
+                    emailVerified: false
+                    createDate: '2020-11-18'
+          headers: {}
+        '400':
+          description: Missing Required Information
+          headers: {}
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '409':
+          description: Email Already Taken
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                dateOfBirth:
+                  type: string
+                  format: date
+              required:
+                - firstName
+                - lastName
+                - email
+                - dateOfBirth
+            examples:
+              Create User Bob Fellow:
+                value:
+                  firstName: Bob
+                  lastName: Fellow
+                  email: bob.fellow@gmail.com
+                  dateOfBirth: '1996-08-24'
+        description: Post the necessary fields for the API to create a new user.
+      description: Create a new user.
+      parameters:
+        - $ref: '#/components/parameters/correlation-id'
+        - $ref: '#/components/parameters/user-agent'
+      security:
+        - Authorization:
+            - write
+      tags:
+        - users
+    parameters: []
+  '/v1/users/{userId}':
+    parameters:
+      - $ref: '#/components/parameters/userId'
+    get:
+      summary: Get User Info by User ID
+      tags:
+        - users
+      responses:
+        '200':
+          description: User Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              examples:
+                Get User Alice Smith:
+                  value:
+                    id: 142
+                    firstName: Alice
+                    lastName: Smith
+                    email: alice.smith@gmail.com
+                    dateOfBirth: '1997-10-31'
+                    emailVerified: true
+                    signUpDate: '2019-08-24'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: User Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+      operationId: get-users-userId
+      description: Retrieve the information of the user with the matching user ID.
+      parameters:
+        - $ref: '#/components/parameters/correlation-id'
+        - $ref: '#/components/parameters/user-agent'
+      security:
+        - Authorization:
+            - read
+    put:
+      summary: Update User Information
+      operationId: put-users-userId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server Error
+      description: Update the information of an existing user.
+      parameters:
+        - $ref: '#/components/parameters/correlation-id'
+        - $ref: '#/components/parameters/user-agent'
+      security:
+        - Authorization:
+            - write
+      tags:
+        - users
+components:
+  schemas:
+    User:
+      title: User
+      type: object
+      description: ''
+      x-examples:
+        example:
+          id: 142
+          firstName: Alice
+          lastName: Smith
+          email: alice.smith@gmail.com
+          dateOfBirth: '1997-10-31'
+          emailVerified: true
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the given user.
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        dateOfBirth:
+          type: string
+          format: date
+          example: '1997-10-31'
+        emailVerified:
+          type: boolean
+          description: Set to true if the user's email has been verified.
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - emailVerified
+    Problem:
+      description: ''
+      type: object
+      properties:
+        type:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+        detail:
+          type: string
+          minLength: 1
+        status:
+          type: number
+      required:
+        - type
+        - title
+        - detail
+        - status
+      x-examples:
+        example-1:
+          type: 'https://example.net/validation-error'
+          title: Validation failed.
+          detail: Multiple problems found during validation
+          status: 400
+  securitySchemes:
+    Authorization:
+      type: http
+      scheme: bearer
+  parameters:
+    correlation-id:
+      name: correlation-id
+      in: header
+      required: false
+      schema:
+        type: string
+      description: the correlation-id
+    user-agent:
+      name: user-agent
+      in: header
+      required: true
+      schema:
+        type: string
+      description: the user agent
+    userId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: the id of an existing user
+tags:
+  - name: users

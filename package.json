@@ -1,0 +1,28 @@
+{
+  "name": "git-20211111",
+  "version": "1.0.0",
+  "description": "git-20211111",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate": "openapi-generator-cli generate -i api/swagger.yml -g nodejs-express-server -o generated/ --additional-properties=ngVersion=6.1.7,npmName=restClient,supportsES6=true,npmVersion=6.9.0,withInterfaces=true",
+    "generateC#": "openapi-generator-cli generate -i api/swagger.yml -g csharp-nancyfx -o generatedC#/ --additional-properties=ngVersion=6.1.7,npmName=restClient,supportsES6=true,npmVersion=6.9.0,withInterfaces=true"
+
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LEGO/git-20211111.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LEGO/git-20211111/issues"
+  },
+  "homepage": "https://github.com/LEGO/git-20211111#readme",
+  "dependencies": {
+    "@openapitools/openapi-generator-cli": "^2.4.18"
+  }
+}
