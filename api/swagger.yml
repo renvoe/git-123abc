@@ -141,9 +141,6 @@ paths:
       parameters:
         - $ref: '#/components/parameters/correlation-id'
         - $ref: '#/components/parameters/user-agent'
-      security:
-        - Authorization:
-            - read
     put:
       summary: Update User Information
       operationId: put-users-userId

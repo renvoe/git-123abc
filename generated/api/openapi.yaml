@@ -1,0 +1,358 @@
+openapi: 3.0.3
+info:
+  contact:
+    email: contact@example.com
+    name: John
+  description: The User API
+  license:
+    name: MIT
+  termsOfService: example.com/termsofservice
+  title: UserAPI
+  version: "1.0"
+  x-audience: company-internal
+  x-edm-id: a.b.c
+servers:
+- url: http://localhost:3000
+tags:
+- name: users
+paths:
+  /v1/users:
+    post:
+      description: Create a new user.
+      operationId: post-user
+      parameters:
+      - description: the correlation-id
+        explode: false
+        in: header
+        name: correlation-id
+        required: false
+        schema:
+          type: string
+        style: simple
+      - description: the user agent
+        explode: false
+        in: header
+        name: user-agent
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        $ref: '#/components/requestBodies/inline_object'
+        content:
+          application/json:
+            examples:
+              Create User Bob Fellow:
+                value:
+                  firstName: Bob
+                  lastName: Fellow
+                  email: bob.fellow@gmail.com
+                  dateOfBirth: 1996-08-24
+            schema:
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                email:
+                  type: string
+                dateOfBirth:
+                  format: date
+                  type: string
+              required:
+              - dateOfBirth
+              - email
+              - firstName
+              - lastName
+              type: object
+        description: Post the necessary fields for the API to create a new user.
+      responses:
+        "201":
+          content:
+            application/json:
+              examples:
+                New User Bob Fellow:
+                  value:
+                    id: 12
+                    firstName: Bob
+                    lastName: Fellow
+                    email: bob.fellow@gmail.com
+                    dateOfBirth: 1996-08-24
+                    emailVerified: false
+                    createDate: 2020-11-18
+              schema:
+                $ref: '#/components/schemas/User'
+          description: User Created
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Missing Required Information
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Unauthorized
+        "409":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Email Already Taken
+      security:
+      - Authorization:
+        - write
+      summary: Create New User
+      tags:
+      - users
+      x-eov-operation-handler: controllers/UsersController
+  /v1/users/{userId}:
+    get:
+      description: Retrieve the information of the user with the matching user ID.
+      operationId: get-users-userId
+      parameters:
+      - description: the id of an existing user
+        explode: false
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: the correlation-id
+        explode: false
+        in: header
+        name: correlation-id
+        required: false
+        schema:
+          type: string
+        style: simple
+      - description: the user agent
+        explode: false
+        in: header
+        name: user-agent
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                Get User Alice Smith:
+                  value:
+                    id: 142
+                    firstName: Alice
+                    lastName: Smith
+                    email: alice.smith@gmail.com
+                    dateOfBirth: 1997-10-31
+                    emailVerified: true
+                    signUpDate: 2019-08-24
+              schema:
+                $ref: '#/components/schemas/User'
+          description: User Found
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Bad Request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Unauthorized
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: User Not Found
+      summary: Get User Info by User ID
+      tags:
+      - users
+      x-eov-operation-handler: controllers/UsersController
+    put:
+      description: Update the information of an existing user.
+      operationId: put-users-userId
+      parameters:
+      - description: the id of an existing user
+        explode: false
+        in: path
+        name: userId
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: the correlation-id
+        explode: false
+        in: header
+        name: correlation-id
+        required: false
+        schema:
+          type: string
+        style: simple
+      - description: the user agent
+        explode: false
+        in: header
+        name: user-agent
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: OK
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Bad Request
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - Authorization:
+        - write
+      summary: Update User Information
+      tags:
+      - users
+      x-eov-operation-handler: controllers/UsersController
+components:
+  parameters:
+    correlation-id:
+      description: the correlation-id
+      explode: false
+      in: header
+      name: correlation-id
+      required: false
+      schema:
+        type: string
+      style: simple
+    user-agent:
+      description: the user agent
+      explode: false
+      in: header
+      name: user-agent
+      required: true
+      schema:
+        type: string
+      style: simple
+    userId:
+      description: the id of an existing user
+      explode: false
+      in: path
+      name: userId
+      required: true
+      schema:
+        type: string
+      style: simple
+  requestBodies:
+    inline_object:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/inline_object'
+  schemas:
+    User:
+      example:
+        firstName: firstName
+        lastName: lastName
+        emailVerified: true
+        dateOfBirth: 1997-10-31T00:00:00.000+0000
+        id: 0
+        email: email
+      properties:
+        id:
+          description: Unique identifier for the given user.
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          format: email
+          type: string
+        dateOfBirth:
+          example: 1997-10-31
+          format: date
+          type: string
+        emailVerified:
+          description: Set to true if the user's email has been verified.
+          type: boolean
+      required:
+      - email
+      - emailVerified
+      - firstName
+      - id
+      - lastName
+      title: User
+      type: object
+      x-examples:
+        example:
+          id: 142
+          firstName: Alice
+          lastName: Smith
+          email: alice.smith@gmail.com
+          dateOfBirth: 1997-10-31
+          emailVerified: true
+    Problem:
+      properties:
+        type:
+          minLength: 1
+          type: string
+        title:
+          minLength: 1
+          type: string
+        detail:
+          minLength: 1
+          type: string
+        status:
+          type: number
+      required:
+      - detail
+      - status
+      - title
+      - type
+      type: object
+      x-examples:
+        example-1:
+          type: https://example.net/validation-error
+          title: Validation failed.
+          detail: Multiple problems found during validation
+          status: 400
+    inline_object:
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        dateOfBirth:
+          format: date
+          type: string
+      required:
+      - dateOfBirth
+      - email
+      - firstName
+      - lastName
+      type: object
+  securitySchemes:
+    Authorization:
+      scheme: bearer
+      type: http
